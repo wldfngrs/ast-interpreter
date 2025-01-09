@@ -1,4 +1,4 @@
-package com.craftinginterpreters.lox;
+package jlox;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,13 +17,14 @@ public class Lox {
     } else if (args.length == 1) {
       runFile(args[0]);
     } else {
+      System.out.println("Running prompt...");
       runPrompt();
     }
   }
 
   private static void runFile(String path) throws IOException {
     byte[] bytes = Files.readAllBytes(Paths.get(path));
-    run(new String(byts, Charset.defaultCharset()));
+    run(new String(bytes, Charset.defaultCharset()));
     if (hadError) System.exit(65);
   }
 

@@ -1,4 +1,4 @@
-package com.craftinginterpreters.lox;
+package jlox;
 
 enum TokenType {
   // Single-character tokens.
@@ -9,4 +9,14 @@ enum TokenType {
   BANG, BANG_EQUAL,
   EQUAL, EQUAL_EQUAL,
   GREATER, GREATER_EQUAL,
+  LESS, LESS_EQUAL,
+
+  // Literals.
+  IDENTIFIER, STRING, NUMBER,
+
+  // Keywords.
+  AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
+  PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
+
+  EOF
 }
