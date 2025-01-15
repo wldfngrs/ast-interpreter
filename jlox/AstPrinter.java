@@ -24,16 +24,32 @@ class AstPrinter implements Expr.Visitor<String>,
 
   @Override
   public String visitVarStmt(Stmt.Var stmt) {
-    return parenthesize("decl " + stmt.name.lexeme, stmt.initializer);
+    return parenthesize("=: " + stmt.name.lexeme, stmt.initializer);
   }
 
   @Override
   public String visitBlockStmt(Stmt.Block stmt) {
     return parenthesize("block", stmt.statements);
   }
+  
+  @Override
+  public String visitIfStmt(Stmt.If stmt) {
+    //return parenthesize("if", stmt.thenBranch, stmt.elseBranch, stmt.condition);
+    return parenthesize("if", stmt);
+  }
+
+  @Override
+  public String visitWhileStmt(Stmt.While stmt) {
+    return parenthesize("while", stmt);
+  }
 
   @Override
   public String visitBinaryExpr(Expr.Binary expr) {
+    return parenthesize(expr.operator.lexeme, expr.left, expr.right);
+  }
+
+  @Override
+  public String visitLogicalExpr(Expr.Logical expr) {
     return parenthesize(expr.operator.lexeme, expr.left, expr.right);
   }
 
@@ -60,7 +76,7 @@ class AstPrinter implements Expr.Visitor<String>,
 
   @Override
   public String visitAssignExpr(Expr.Assign expr) {
-    return parenthesize("assign " + expr.name.lexeme, expr.value);
+    return parenthesize("= " + expr.name.lexeme, expr.value);
   }
   
   private String parenthesize(String name, Expr... exprs) {
@@ -97,6 +113,28 @@ class AstPrinter implements Expr.Visitor<String>,
 
     builder.append(")");
 
+    return builder.toString();
+  }
+
+  public String parenthesize(String name, Stmt stmt) {
+    StringBuilder builder = new StringBuilder();
+
+    builder.append("(").append(name).append(" ");
+
+    if (stmt instanceof Stmt.If) {
+      builder.append(((Stmt.If)stmt).condition.accept(this));
+      builder.append(" ");
+      builder.append("then ").append(((Stmt.If)stmt).thenBranch.accept(this));
+      builder.append(" ");
+      builder.append("else ").append(((Stmt.If)stmt).elseBranch.accept(this));
+    } else if (stmt instanceof Stmt.While){
+      builder.append(((Stmt.While)stmt).condition.accept(this));
+      builder.append(" ");
+      builder.append(((Stmt.While)stmt).body.accept(this));
+    }
+
+    builder.append(")");
+    
     return builder.toString();
   }
 

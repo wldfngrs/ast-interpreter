@@ -1,4 +1,4 @@
-obj: 
+bc: 
 	javac jlox/*.java
 	javac tool/GenerateAst.java
 
