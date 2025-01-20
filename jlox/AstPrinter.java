@@ -34,7 +34,7 @@ class AstPrinter implements Expr.Visitor<String>,
 
   @Override
   public String visitClassStmt(Stmt.Class stmt) {
-    return parenthesize("class " + stmt.name.lexeme, stmt.methods);
+    return parenthesize("class " + stmt.name.lexeme, stmt.methods, stmt.superclass);
   }
   
   @Override
@@ -70,6 +70,11 @@ class AstPrinter implements Expr.Visitor<String>,
   @Override
   public String visitSetExpr(Expr.Set expr) {
     return parenthesize("Set " + expr.name.lexeme, expr.object, expr.value);
+  }
+
+  @Override
+  public String visitSuperExpr(Expr.Super expr) {
+    return parenthesize(expr.keyword.lexeme + " " + expr.method.lexeme);
   }
 
   @Override
@@ -155,10 +160,14 @@ class AstPrinter implements Expr.Visitor<String>,
     return builder.toString();
   }
 
-  public String parenthesize(String name, List<? extends Stmt> stmts) {
+  public String parenthesize(String name, List<? extends Stmt> stmts, Expr... exprs) {
     StringBuilder builder = new StringBuilder();
 
     builder.append("(").append(name);
+
+    for (Expr expr : exprs) {
+      builder.append(" extends ").append(expr.accept(this));
+    }
 
     for (Stmt stmt : stmts) {
       builder.append(" ");
