@@ -31,10 +31,14 @@ class AstPrinter implements Expr.Visitor<String>,
   public String visitBlockStmt(Stmt.Block stmt) {
     return parenthesize("block", stmt.statements);
   }
+
+  @Override
+  public String visitClassStmt(Stmt.Class stmt) {
+    return parenthesize("class " + stmt.name.lexeme, stmt.methods);
+  }
   
   @Override
   public String visitIfStmt(Stmt.If stmt) {
-    //return parenthesize("if", stmt.thenBranch, stmt.elseBranch, stmt.condition);
     return parenthesize("if", stmt);
   }
 
@@ -43,6 +47,16 @@ class AstPrinter implements Expr.Visitor<String>,
     return parenthesize("while", stmt);
   }
 
+  @Override
+  public String visitFunctionStmt(Stmt.Function stmt) {
+    return parenthesize("fun " + stmt.name.lexeme, stmt.params, stmt.body);
+  }
+
+  @Override
+  public String visitReturnStmt(Stmt.Return stmt) {
+    return parenthesize(stmt.keyword.lexeme, stmt.value);
+  }
+  
   @Override
   public String visitBinaryExpr(Expr.Binary expr) {
     return parenthesize(expr.operator.lexeme, expr.left, expr.right);
@@ -53,6 +67,26 @@ class AstPrinter implements Expr.Visitor<String>,
     return parenthesize(expr.operator.lexeme, expr.left, expr.right);
   }
 
+  @Override
+  public String visitSetExpr(Expr.Set expr) {
+    return parenthesize("Set " + expr.name.lexeme, expr.object, expr.value);
+  }
+
+  @Override
+  public String visitThisExpr(Expr.This expr) {
+    return parenthesize("this");
+  }
+
+  @Override
+  public String visitCallExpr(Expr.Call expr) {
+    return parenthesize("call", expr.arguments, expr.callee);
+  }
+
+  @Override
+  public String visitGetExpr(Expr.Get expr) {
+    return parenthesize("get " + expr.name.lexeme, expr.object);
+  }
+  
   @Override
   public String visitGroupingExpr(Expr.Grouping expr) {
     return parenthesize("group", expr.expression);
@@ -93,6 +127,26 @@ class AstPrinter implements Expr.Visitor<String>,
     return builder.toString();
   }
 
+  private String parenthesize(String name, List<Token> tokens, List<Stmt> stmts) {
+    StringBuilder builder = new StringBuilder();
+
+    builder.append("(").append(name);
+    
+    builder.append(" params:");
+    for (Token token : tokens) {
+      builder.append(" ");
+      builder.append(token.lexeme);
+    }
+
+    builder.append(" body:");
+    for (Stmt stmt : stmts) {
+      builder.append(" ");
+      builder.append(stmt.accept(this));
+    }
+
+    return builder.toString();
+  }
+
   public String parenthesize(String name) {
     StringBuilder builder = new StringBuilder(); 
     
@@ -101,7 +155,7 @@ class AstPrinter implements Expr.Visitor<String>,
     return builder.toString();
   }
 
-  public String parenthesize(String name, List<Stmt> stmts) {
+  public String parenthesize(String name, List<? extends Stmt> stmts) {
     StringBuilder builder = new StringBuilder();
 
     builder.append("(").append(name);
@@ -109,6 +163,23 @@ class AstPrinter implements Expr.Visitor<String>,
     for (Stmt stmt : stmts) {
       builder.append(" ");
       builder.append(stmt.accept(this));
+    }
+
+    builder.append(")");
+
+    return builder.toString();
+  }
+
+  public String parenthesize(String name, List<Expr> arguments, Expr expr) {
+    StringBuilder builder = new StringBuilder();
+
+    builder.append("(").append(name);
+    builder.append(expr.accept(this));
+    builder.append("args:");
+
+    for (Expr argument : arguments) {
+      builder.append(" ");
+      builder.append(argument.accept(this));
     }
 
     builder.append(")");
